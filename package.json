@@ -1,16 +1,16 @@
 {
   "name": "dimple",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "Simple tool to copy directories defined in a JSON file",
-  "main": "dimple.js",
+  "author": "tvdavies",
+  "license": "MIT",
   "dependencies": {
     "rimraf": "^2.2.8",
     "ncp": "^1.0.1"
   },
   "devDependencies": {},
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "tvdavies",
-  "license": "MIT"
+  "preferGlobal": true,
+  "bin": {
+    "dimple": "dimple.js"
+  }
 }
