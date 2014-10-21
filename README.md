@@ -5,10 +5,10 @@ Install with `npm install -g dimple`
 ## Config
 Create the file `dimple.json` in your directory.
 
-Specify a group - containing `sourceDir`, `targetDir` and `copyDirs` (an array containing the names of all directories in source directory to copy to the target directory.
+Specify at least one group - containing `sourceDir`, `targetDir` and `copyDirs` (an array containing the names of all directories in source directory to copy to the target directory. The config file can contain as many groups as you like.
 
-# Example
-`
+### Example
+```
 {
   "some_directories_to_copy": {
     "sourceDir": "<path>",
@@ -19,8 +19,7 @@ Specify a group - containing `sourceDir`, `targetDir` and `copyDirs` (an array c
     ]
   }
 }
-`
-The file can contain as many groups as you like.
+```
 
 ## Run
 Just execute `dimple` from the command line in your project folder and the directories will be copied over.
