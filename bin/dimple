@@ -8,14 +8,26 @@ var rimraf = require('rimraf');
 var colors = require('colors');
 
 try {
-	var config = require('./dimple.json');
+	// Attempt to load dimple.json
+	var config = require(process.cwd() + '/dimple.json');
 } catch (e) {
-	console.log('Could not locate \'dimple.json\''.bold.red);
+	// Could not load file
+	if (e.code === 'MODULE_NOT_FOUND')
+		console.error('Could not locate \'dimple.json\''.bold.red);
+	else
+		console.error(e.toString().bold.red)
+
+	// Exit
+	process.exit(1);
 }
 
 function doCopy(sourceDir, targetDir) {
+	// Check status of sourceDir
 	fs.stat(sourceDir, function (err, stats) {
+		// If no err then it exists
 		if (err === null) {
+			// We are only interested in directories, not files
+			// Files are silently ignored
 			if (stats.isDirectory()) {
 				fs.exists(targetDir, function (exists) {
 					// If the target directory already exists, remove it
@@ -38,15 +50,17 @@ function doCopy(sourceDir, targetDir) {
 	});
 }
 
+// Iterate over groups in config
 for (var group in config) {
+	// Append '/' to directory names if not already ending with trailing forward slash
 	if (config[group].sourceDir.slice(-1) !== '/')
 		config[group].sourceDir += '/';
-
 	if (config[group].targetDir.slice(-1) !== '/')
 		config[group].targetDir += '/';
 
-	// Check directories exist
+	// Begin closure
 	(function (group) {
+		// Check root source directory exists
 		fs.exists(config[group].sourceDir, function (exists) {
 			if (exists) {
 				fs.exists(config[group].targetDir, function (exists) {
@@ -56,6 +70,7 @@ for (var group in config) {
 						// Get all subdirectories in source folder
 						dirsToCopy = fs.readdirSync(config[group].sourceDir);
 					} else if (Object.prototype.toString.call(config[group].copyDirs) === '[object Array]') {
+						// Use directory array from config
 						dirsToCopy = config[group].copyDirs;
 					} else {
 						// Invalid copyDirs
@@ -82,8 +97,8 @@ for (var group in config) {
 					}
 				});
 			} else {
-				// If the source directory does not exist
-				// then there's not much we can do but stop.
+				// If the source directory does not exist then there's not much
+				// we can do but ignore it and proceed with the rest.
 				console.log(('Directory \'' + config[group].sourceDir + '\' does not exist').bold.red);
 			}
 		});

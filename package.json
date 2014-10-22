@@ -1,13 +1,10 @@
 {
   "name": "dimple",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Simple tool to copy directories defined in a JSON file",
   "author": "tvdavies",
   "license": "MIT",
-  "repository": {
-    "type" : "git",
-    "url" : "https://github.com/tvdavies/dimple.git"
-  },
+  "repository": "tvdavies/dimple",
   "dependencies": {
     "rimraf": "^2.2.8",
     "ncp": "^1.0.1",
@@ -15,6 +12,6 @@
   },
   "devDependencies": {},
   "bin": {
-    "dimple": "dimple"
+    "dimple": "bin/dimple"
   }
 }
