@@ -39,8 +39,6 @@ function doCopy(sourceDir, targetDir) {
 
 					// Copy the directory from source to target
 					console.log(('Copying ' + sourceDir + ' --> ' + targetDir).bold.blue);
-					console.log('    ' + path.resolve(cwd, sourceDir).bold.gray);
-					console.log('    ' + path.resolve(cwd, targetDir).bold.gray);
 					ncp(path.resolve(cwd, sourceDir), path.resolve(cwd, targetDir), function (err) {
 						if (err)
 							console.log(('Failed to copy ' + sourceDir + ' --> ' + targetDir).bold.red);
