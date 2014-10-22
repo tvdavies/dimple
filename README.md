@@ -5,7 +5,7 @@ Install with `npm install -g dimple`
 ## Config
 Create the file `dimple.json` in your directory.
 
-Specify at least one group - containing `sourceDir`, `targetDir` and `copyDirs` (an array containing the names of all directories in source directory to copy to the target directory. The config file can contain as many groups as you like.
+Specify at least one group - containing `sourceDir`, `targetDir` and `copyDirs` (either `*` to copy all sub-directories or else an array containing the names of all directories in source directory to copy to the target directory. The config file can contain as many groups as you like.
 
 ### Example
 ```
@@ -17,6 +17,11 @@ Specify at least one group - containing `sourceDir`, `targetDir` and `copyDirs` 
       "<dir_name>",
       "<dir_name"
     ]
+  },
+  "some_more_directories_to_copy": {
+    "sourceDir": "<path>",
+    "targetDir": "<path>",
+    "copyDirs": "*"
   }
 }
 ```
