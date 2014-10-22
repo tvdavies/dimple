@@ -1,6 +1,6 @@
 {
   "name": "dimple",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "description": "Simple tool to copy directories defined in a JSON file",
   "author": "tvdavies",
   "license": "MIT",
@@ -8,7 +8,9 @@
   "dependencies": {
     "rimraf": "^2.2.8",
     "ncp": "^1.0.1",
-    "colors": "^1.0.3"
+    "colors": "^1.0.3",
+    "commander": "^2.4.0",
+    "node-watch": "^0.3.4"
   },
   "devDependencies": {},
   "bin": {

@@ -7,8 +7,40 @@ var path = require('path');
 var ncp = require('ncp').ncp;
 var rimraf = require('rimraf');
 var colors = require('colors');
+var program = require('commander');
+var watch = require('node-watch');
+var pkg = require('../package.json');
+
+program
+	.version(pkg.version)
+	.option('clean', 'Clean target directories')
+	.option('watch', 'Watch for file changes')
+	.parse(process.argv);
 
 var cwd = process.cwd();
+
+// If we are watching for changes, when changes detected
+// the entry gets put in changedDirs against the source
+// directory name. That way, if multiple files change at a time
+// we don't do a whole directory copy for each change.
+var changedDirs = {};
+
+// Set up periodic function to check for changes
+// recorded, and do copy where changes have been detected.
+if (program.watch) {
+	// Check every second
+	setInterval(function () {
+		for (var key in changedDirs) {
+			if (changedDirs[key] !== null) {
+				console.log(('Change in \'' + changedDirs[key].copySrc.underline + '\' detected').bold.magenta);
+				// Copy the source directory over to target
+				doCopy(changedDirs[key].copySrc, changedDirs[key].copyTgt, true);
+				// Set changedDirs value to null
+				changedDirs[key] = null;
+			}
+		}
+	}, 1000);
+}
 
 try {
 	// Attempt to load dimple.json
@@ -24,7 +56,7 @@ try {
 	process.exit(1);
 }
 
-function doCopy(sourceDir, targetDir) {
+function doCopy(sourceDir, targetDir, fromWatch) {
 	// Check status of sourceDir
 	fs.stat(sourceDir, function (err, stats) {
 		// If no err then it exists
@@ -38,17 +70,25 @@ function doCopy(sourceDir, targetDir) {
 						rimraf.sync(targetDir);
 
 					// Copy the directory from source to target
-					console.log(('Copying ' + sourceDir + ' --> ' + targetDir).bold.blue);
+					console.log(('Copying \'' + sourceDir.underline + '\' --> \'' + targetDir.underline + '\'').bold.blue);
 					ncp(path.resolve(cwd, sourceDir), path.resolve(cwd, targetDir), function (err) {
 						if (err)
-							console.log(('Failed to copy ' + sourceDir + ' --> ' + targetDir).bold.red);
+							console.log(('Failed to copy \'' + sourceDir.underline + '\' --> \'' + targetDir.underline + '\'').bold.red);
 						else
-							console.log(('Copied ' + sourceDir + ' --> ' + targetDir).bold.green);
+							console.log(('Copied \'' + sourceDir.underline + '\' --> \'' + targetDir.underline + '\'').bold.green);
 					});
 				});
 			}
 		} else {
-			console.log(('Directory \'' + sourceDir + '\' does not exist').bold.red);
+			// Directory does not exist
+			if (fromWatch) {
+				// This obviously did exist before, so remove targetDir
+				rimraf(targetDir, function () {
+					console.log(('Removed \'' + targetDir.underline + '\'').bold.green);
+				});
+			} else {
+				console.log(('Directory \'' + sourceDir.underline + '\' does not exist').bold.red);
+			}
 		}
 	});
 }
@@ -78,24 +118,47 @@ for (var group in config) {
 							// Now copy each directory specified in file
 							var length = dirsToCopy.length;
 							for (var i = 0; i < length; i++) {
-								doCopy(
-									path.join(config[group].sourceDir, dirsToCopy[i]),
-									path.join(config[group].targetDir, path.basename(dirsToCopy[i]))
-								);
+								(function (copySrc, copyTgt) {
+									if (program.clean) {
+										// Remove the target directory
+										rimraf(copyTgt, function () {
+											console.log(('Removed \'' + copyTgt.underline + '\'').bold.green);
+										});
+									} else {
+										if (program.watch) {
+											fs.exists(copySrc, function (exists) {
+												if (exists) {
+													// If we are watching for changes, when something does change
+													// do copy again
+													watch(copySrc, function (filename) {
+														if (changedDirs[copySrc] === undefined || changedDirs[copySrc] === null) {
+															changedDirs[copySrc] = {
+																copySrc: copySrc,
+																copyTgt: copyTgt
+															};
+														}
+													});
+												}
+											});
+										}
+										// Do copy now
+										doCopy(copySrc, copyTgt, false);
+									}
+								})(path.join(config[group].sourceDir, dirsToCopy[i]), path.join(config[group].targetDir, path.basename(dirsToCopy[i])));
 							}
 						};
 
 						// If target directory does not exist, create it
-						if (!exists)
-							fs.mkdir(config[group].targetDir, copyDirs);
-						else
+						if (exists)
 							copyDirs();
+						else
+							fs.mkdir(config[group].targetDir, copyDirs);
 					}
 				});
 			} else {
 				// If the source directory does not exist then there's not much
 				// we can do but ignore it and proceed with the rest.
-				console.log(('Directory \'' + config[group].sourceDir + '\' does not exist').bold.red);
+				console.log(('Directory \'' + config[group].sourceDir.underline + '\' does not exist').bold.red);
 			}
 		});
 	})(group);

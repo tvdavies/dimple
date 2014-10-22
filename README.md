@@ -28,3 +28,7 @@ Specify at least one group - containing `sourceDir`, `targetDir` and `copyDirs` 
 
 ## Run
 Just execute `dimple` from the command line in your project folder and the directories will be copied over.
+
+Run `dimple watch` if you wish to copy directories and then continue to watch for any changes in those directories. When changes are detected the directory will be copied to the target again.
+
+To cleanup the target directory, run `dimple clean`. This will remove all directories specified in `copyDirs` from target directories.
