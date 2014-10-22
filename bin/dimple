@@ -3,13 +3,16 @@
 'use strict';
 
 var fs = require('fs');
+var path = require('path');
 var ncp = require('ncp').ncp;
 var rimraf = require('rimraf');
 var colors = require('colors');
 
+var cwd = process.cwd();
+
 try {
 	// Attempt to load dimple.json
-	var config = require(process.cwd() + '/dimple.json');
+	var config = require(path.join(cwd, 'dimple.json'));
 } catch (e) {
 	// Could not load file
 	if (e.code === 'MODULE_NOT_FOUND')
@@ -36,7 +39,9 @@ function doCopy(sourceDir, targetDir) {
 
 					// Copy the directory from source to target
 					console.log(('Copying ' + sourceDir + ' --> ' + targetDir).bold.blue);
-					ncp(sourceDir, targetDir, function (err) {
+					console.log('    ' + path.resolve(cwd, sourceDir).bold.gray);
+					console.log('    ' + path.resolve(cwd, targetDir).bold.gray);
+					ncp(path.resolve(cwd, sourceDir), path.resolve(cwd, targetDir), function (err) {
 						if (err)
 							console.log(('Failed to copy ' + sourceDir + ' --> ' + targetDir).bold.red);
 						else
@@ -52,13 +57,6 @@ function doCopy(sourceDir, targetDir) {
 
 // Iterate over groups in config
 for (var group in config) {
-	// Append '/' to directory names if not already ending with trailing forward slash
-	if (config[group].sourceDir.slice(-1) !== '/')
-		config[group].sourceDir += '/';
-	if (config[group].targetDir.slice(-1) !== '/')
-		config[group].targetDir += '/';
-
-	// Begin closure
 	(function (group) {
 		// Check root source directory exists
 		fs.exists(config[group].sourceDir, function (exists) {
@@ -83,8 +81,8 @@ for (var group in config) {
 							var length = dirsToCopy.length;
 							for (var i = 0; i < length; i++) {
 								doCopy(
-									config[group].sourceDir + dirsToCopy[i],
-									config[group].targetDir + dirsToCopy[i]
+									path.join(config[group].sourceDir, dirsToCopy[i]),
+									path.join(config[group].targetDir, path.basename(dirsToCopy[i]))
 								);
 							}
 						};
