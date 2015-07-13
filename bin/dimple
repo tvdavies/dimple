@@ -93,18 +93,20 @@ function doCopy(sourceDir, targetDir, fromWatch) {
 	});
 }
 
+function getSourceDir()
+
 // Iterate over groups in config
 for (var group in config) {
 	(function (group) {
 		// Check root source directory exists
-		fs.exists(config[group].sourceDir, function (exists) {
+		fs.exists(config[group].sourceBaseDir, function (exists) {
 			if (exists) {
-				fs.exists(config[group].targetDir, function (exists) {
+				fs.exists(config[group].targetBaseDir, function (exists) {
 					var dirsToCopy = [];
 
 					if (typeof config[group].copyDirs === 'string' && config[group].copyDirs === '*') {
 						// Get all subdirectories in source folder
-						dirsToCopy = fs.readdirSync(config[group].sourceDir);
+						dirsToCopy = fs.readdirSync(config[group].sourceBaseDir);
 					} else if (Object.prototype.toString.call(config[group].copyDirs) === '[object Array]') {
 						// Use directory array from config
 						dirsToCopy = config[group].copyDirs;
@@ -144,7 +146,10 @@ for (var group in config) {
 										// Do copy now
 										doCopy(copySrc, copyTgt, false);
 									}
-								})(path.join(config[group].sourceDir, dirsToCopy[i]), path.join(config[group].targetDir, path.basename(dirsToCopy[i])));
+								})(
+									path.join(config[group].sourceBaseDir, dirsToCopy[i].source || dirsToCopy[i]),
+									path.join(config[group].targetBaseDir, dirsToCopy[i].target || path.basename(dirsToCopy[i]))
+								);
 							}
 						};
 
@@ -152,13 +157,13 @@ for (var group in config) {
 						if (exists)
 							copyDirs();
 						else
-							fs.mkdir(config[group].targetDir, copyDirs);
+							fs.mkdir(config[group].targetBaseDir, copyDirs);
 					}
 				});
 			} else {
 				// If the source directory does not exist then there's not much
 				// we can do but ignore it and proceed with the rest.
-				console.log(('Directory \'' + config[group].sourceDir.underline + '\' does not exist').bold.red);
+				console.log(('Directory \'' + config[group].sourceBaseDir.underline + '\' does not exist').bold.red);
 			}
 		});
 	})(group);
