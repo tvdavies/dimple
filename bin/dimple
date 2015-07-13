@@ -93,8 +93,6 @@ function doCopy(sourceDir, targetDir, fromWatch) {
 	});
 }
 
-function getSourceDir()
-
 // Iterate over groups in config
 for (var group in config) {
 	(function (group) {
@@ -119,7 +117,10 @@ for (var group in config) {
 						var copyDirs = function () {
 							// Now copy each directory specified in file
 							var length = dirsToCopy.length;
+							var sourceDir, targetDir;
 							for (var i = 0; i < length; i++) {
+								sourceDir = (typeof dirsToCopy[i] === 'string') ? dirsToCopy[i] : dirsToCopy[i].source;
+								targetDir = (typeof dirsToCopy[i] === 'string') ? path.basename(dirsToCopy[i]) : dirsToCopy[i].target;
 								(function (copySrc, copyTgt) {
 									if (program.clean) {
 										// Remove the target directory
@@ -147,8 +148,8 @@ for (var group in config) {
 										doCopy(copySrc, copyTgt, false);
 									}
 								})(
-									path.join(config[group].sourceBaseDir, dirsToCopy[i].source || dirsToCopy[i]),
-									path.join(config[group].targetBaseDir, dirsToCopy[i].target || path.basename(dirsToCopy[i]))
+									path.join(config[group].sourceBaseDir, sourceDir),
+									path.join(config[group].targetBaseDir, targetDir)
 								);
 							}
 						};

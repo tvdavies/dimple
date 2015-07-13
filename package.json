@@ -1,6 +1,6 @@
 {
   "name": "dimple",
-  "version": "0.1.0",
+  "version": "0.0.13",
   "description": "Simple tool to copy directories defined in a JSON file",
   "author": "tvdavies",
   "license": "MIT",
